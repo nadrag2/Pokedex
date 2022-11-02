@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Pokedex</title>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="search">
+        <form id="form">
+            <label for="searchPokemon">Buscar Pokémon</label>
+            <input type="search" id="namesearch" name="namesearch">
+            <button type="submit" for="namesearch">Buscar</button>
+        </form>
+    </div>
+
+    <!-- BODY -->
+    <div class="info-container">
+        <div class="info">
+            <label for="name">NAME:</label>
+            <label id="name"></label>
+            <img src="" id="picSprite" height="100" alt="Pokemon Image"><br>
+            <label for="id">ID:</label>
+            <label id="id"></label><br>
+            <label for="height">HEIGHT:</label>
+            <label id="height"></label><br>
+            <label for="weight">WEIGHT:</label>
+            <label id="weight"></label><br>
+            <label for="element">ELEMENT(S):</label>
+            <label id="element"></label><br>
+        </div>
+        
+        <img src="" id="picOfficial" height="250" alt="Pokemon Image"><br>
+
+        <div class="evolutions">
+            <a href="" id="firstEvo"></a>
+            <a href="" id="secondEvo"></a>
+            <a href="" id="thirdEvo"></a>
+        </div>
+    </div>
+    <span id="evoChain"></span>
+
+    <!-- JS SCRIPT -->
+    <script>
+
+        /* VARIABLE DECLARATIONS */
+        let pkName = localStorage.getItem("pkName");
+        const form = document.getElementById("form");
+        let evoChain;
+
+        /* SEARCH BUTTON */
+        form.addEventListener("submit", function () {
+            const name = document.getElementById("namesearch").value;
+            pkName = name;
+            localStorage.setItem("pkName", pkName);
+        })
+
+        /* FETCH */
+
+        /* Pokemon */
+        fetch(`https://pokeapi.co/api/v2/pokemon/${pkName.toLowerCase()}/`)
+            .then((response) => {
+                if (response.ok) return response.json()
+                else throw new Error(alert(`Pokémon não encontrado. ERRO ${response.status}`))
+            })
+            .then(data => {
+                atribuirData(data.id, data.name, data.height, data.weight, data.types, data.sprites, data.sprites), console.log(data)
+            })
+            .catch(err => console.log(err))
+
+        /* Evolution */
+        fetch(`https://pokeapi.co/api/v2/pokemon-species/${pkName.toLowerCase()}/`)
+            .then(response => response.json())
+            .then(data => { console.log(data), pokemonChain(data) })
+
+        /* FUNCTIONS */
+        function atribuirData(id, name, height, weight, element, imgsprite, imgoff) {
+            document.getElementById("id").innerHTML = `${id}`;
+            document.getElementById("name").innerHTML = `${name.slice(0, 1).toLocaleUpperCase()}${name.slice(1)}`;
+            document.getElementById("height").innerHTML = `${addADot(height)} m`;
+            document.getElementById("weight").innerHTML = `${addADot(weight)} kg`;
+            document.getElementById("element").innerHTML = `${pokemonElement(element)}`;
+            document.getElementById("picSprite").src = imgsprite.front_default;
+            document.getElementById("picOfficial").src = imgoff.other["official-artwork"].front_default;
+
+        }
+
+        function addADot(number) {
+            if (number < 9) {
+                number = `0${number}`;
+            }
+            let strNumber = number.toString();
+            strNumber = `${strNumber.slice(0, -1)}.${strNumber.slice(-1)}`
+            return strNumber;
+        }
+
+        function pokemonElement(element) {
+            let elementArray = [];
+            element.forEach(data => {
+                elementArray.push(data.type.name);
+            });
+            return elementArray.join(", ").toLocaleUpperCase();
+
+        }
+
+        function pokemonChain(name){
+            evoChain = name.evolution_chain.url;
+            fetch(`${evoChain}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("firstEvo").innerHTML = data.chain.species.name;
+                document.getElementById("secondEvo").innerHTML = data.chain.evolves_to[0].species.name;
+                document.getElementById("thirdEvo").innerHTML = data.chain.evolves_to[0].evolves_to[0].species.name;
+                console.log(data)
+            })
+        }
+    </script>
+</body>
+
+</html>
