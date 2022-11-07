@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Pokemon</title>
 </head>
+
 <body>
-    <form id="form">
-        <label for="search">Buscar Pokémon</label>
-        <input type="search" id="searchPokemon" name="searchPokemon">
-        <button type="submit">Buscar</button>
-    </form>
+    <div class="search">
+        <form id="form">
+            <label for="search">Buscar Pokémon</label>
+            <input type="search" id="searchPokemon" name="searchPokemon">
+            <button type="submit" id="buscar">Buscar</button>
+        </form>
+    </div>
 </body>
 
 <script>
@@ -19,14 +24,15 @@
     const name = document.getElementById("searchPokemon");
     const form = document.getElementById("form");
 
-    form.addEventListener("submit", function(e) {
+    form.addEventListener("submit", function (e) {
         e.preventDefault();
 
         const pkName = name.value;
 
         localStorage.setItem("pkName", pkName);
-        window.location.href="index.html";
+        window.location.href = "index.html";
     })
 
 </script>
+
 </html>

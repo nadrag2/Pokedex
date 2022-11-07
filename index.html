@@ -6,81 +6,67 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.js"
+        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
     <title>Pokedex</title>
 </head>
 
 <body>
 
-    <!-- HEADER -->
-    <div class="search">
-        <form id="form">
-            <label for="searchPokemon">Buscar Pokémon</label>
-            <input type="search" id="namesearch" name="namesearch">
-            <button type="submit" for="namesearch">Buscar</button>
-        </form>
+    <div class="container">
+        <div class="search">
+            <form id="form">
+                <input type="text" id="namesearch" name="namesearch" placeholder="Digite o nome de um Pokémon"
+                    autocomplete="off" onkeyup="showResults(this.value)" />
+                <div id="result-list"></div>
+                <button type="submit" for="namesearch">Buscar</button>
+            </form>
+        </div>
+
+        <div class="info-container-geral">
+            <div class="info-container">
+                <div class="info">
+                    <label for="name">NOME:</label>
+                    <label id="name"></label>
+                    <img src="" id="picSprite" height="100" alt="Pokemon Image"><br>
+                    <label for="id">ID:</label>
+                    <label id="id"></label><br>
+                    <label for="height">TAMANHO:</label>
+                    <label id="height"></label><br>
+                    <label for="weight">PESO:</label>
+                    <label id="weight"></label><br>
+                    <label for="element">ELEMENTO(S):</label>
+                    <label id="element"></label><br>
+                </div>
+
+                <img src="" id="picOfficial" height="250" alt="Pokemon Image">
+            </div>
+            <div class="evoClass">
+                <ul id="evolutions-list"></ul>
+            </div>
+        </div>
     </div>
 
-    <!-- BODY -->
-    <div class="info-container">
-        <div class="info">
-            <label for="name">NAME:</label>
-            <label id="name"></label>
-            <img src="" id="picSprite" height="100" alt="Pokemon Image"><br>
-            <label for="id">ID:</label>
-            <label id="id"></label><br>
-            <label for="height">HEIGHT:</label>
-            <label id="height"></label><br>
-            <label for="weight">WEIGHT:</label>
-            <label id="weight"></label><br>
-            <label for="element">ELEMENT(S):</label>
-            <label id="element"></label><br>
-        </div>
-        
-        <img src="" id="picOfficial" height="250" alt="Pokemon Image"><br>
 
-        <div class="evolutions">
-            <a href="" id="firstEvo"></a>
-            <a href="" id="secondEvo"></a>
-            <a href="" id="thirdEvo"></a>
-        </div>
-    </div>
-    <span id="evoChain"></span>
 
     <!-- JS SCRIPT -->
     <script>
 
-        /* VARIABLE DECLARATIONS */
+        /* DECLARAÇÃO DE VARIÁVEIS */
         let pkName = localStorage.getItem("pkName");
         const form = document.getElementById("form");
-        let evoChain;
+        let evoNameArray = [];
+        let evoArray = [];
 
-        /* SEARCH BUTTON */
+        /* BOTÃO DE BUSCA */
         form.addEventListener("submit", function () {
             const name = document.getElementById("namesearch").value;
             pkName = name;
             localStorage.setItem("pkName", pkName);
         })
 
-        /* FETCH */
-
-        /* Pokemon */
-        fetch(`https://pokeapi.co/api/v2/pokemon/${pkName.toLowerCase()}/`)
-            .then((response) => {
-                if (response.ok) return response.json()
-                else throw new Error(alert(`Pokémon não encontrado. ERRO ${response.status}`))
-            })
-            .then(data => {
-                atribuirData(data.id, data.name, data.height, data.weight, data.types, data.sprites, data.sprites), console.log(data)
-            })
-            .catch(err => console.log(err))
-
-        /* Evolution */
-        fetch(`https://pokeapi.co/api/v2/pokemon-species/${pkName.toLowerCase()}/`)
-            .then(response => response.json())
-            .then(data => { console.log(data), pokemonChain(data) })
-
-        /* FUNCTIONS */
-        function atribuirData(id, name, height, weight, element, imgsprite, imgoff) {
+        /* FUNÇÕES */
+        function assignDataToElement(id, name, height, weight, element, imgsprite, imgoff) {
             document.getElementById("id").innerHTML = `${id}`;
             document.getElementById("name").innerHTML = `${name.slice(0, 1).toLocaleUpperCase()}${name.slice(1)}`;
             document.getElementById("height").innerHTML = `${addADot(height)} m`;
@@ -102,23 +88,100 @@
 
         function pokemonElement(element) {
             let elementArray = [];
-            element.forEach(data => {
+            element.forEach((data) => {
                 elementArray.push(data.type.name);
             });
             return elementArray.join(", ").toLocaleUpperCase();
 
         }
 
-        function pokemonChain(name){
-            evoChain = name.evolution_chain.url;
-            fetch(`${evoChain}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("firstEvo").innerHTML = data.chain.species.name;
-                document.getElementById("secondEvo").innerHTML = data.chain.evolves_to[0].species.name;
-                document.getElementById("thirdEvo").innerHTML = data.chain.evolves_to[0].evolves_to[0].species.name;
-                console.log(data)
+        /* ADICIONA TODA A CADEIA DE EVOLUÇÃO DE UM POKÉMON A UM ARRAY */
+        function getEvoArray(evo, evo1) {
+            evoArray.push(evo1.species.name);
+            evo.forEach((data) => {
+                evoArray.push(data.species.name);
+                if (data.evolves_to[0]) {
+                    evoArray.push(data.evolves_to[0].species.name)
+                }
+            });
+            return evoArray;
+        }
+
+        function pokemonChain(data) {
+            let evoChainUrl = data.evolution_chain.url;
+            fetch(`${evoChainUrl}`)
+                .then((response) => (response.json()))
+                .then((data) => {
+                    getEvoArray(data.chain.evolves_to, data.chain);
+                    let ul = document.getElementById("evolutions-list");
+
+                    for (var i = 0; i < evoArray.length; i++) {
+                        let li = document.createElement("li");
+                        li.appendChild(document.createTextNode(evoArray[i]));
+                        li.setAttribute("id", `evo${i}`);
+                        li.setAttribute("class", "evoList");
+                        li.addEventListener("click", function () {
+                            pkName = this.innerHTML;
+                            localStorage.setItem("pkName", pkName);
+                            window.location.reload();
+                        }
+                        );
+                        ul.appendChild(li);
+                    }
+                })
+        }
+
+        /* FETCH */
+
+        /* POKÉMON */
+        fetch(`https://pokeapi.co/api/v2/pokemon/${pkName.toLowerCase()}/`)
+            .then((response) => {
+                if (response.ok) return response.json()
+                else throw new Error(alert(`Pokémon não encontrado. ERRO ${response.status}`))
             })
+            .then((data) => (
+                assignDataToElement(data.id, data.name, data.height, data.weight, data.types, data.sprites, data.sprites), console.log(data)
+            ))
+            .catch((err) => (console.log(err)))
+
+        /* EVOLUÇÃO */
+        fetch(`https://pokeapi.co/api/v2/pokemon-species/${pkName.toLowerCase()}/`)
+            .then((response) => (response.json()))
+            .then((data) => (pokemonChain(data)))
+
+        /* FETCH NOMES */
+        fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1200`)
+            .then((response) => (response.json()))
+            .then((data) => {
+                let item = data.results;
+                item.forEach(data => {
+                    evoNameArray.push(data.name);
+                })
+            });
+
+        function autoComplete(input) {
+            if (input == "") {
+                return [];
+            }
+            var reg = RegExp(input);
+            return evoNameArray.filter(function (name) {
+                if (name.match(reg)) {
+                    return name;
+                }
+            });
+        }
+
+        function showResults(value) {
+            let res = document.getElementById("result-list");
+            let ul = document.getElementById("nameListFilter");
+            res.innerHTML = "";
+            let list = "";
+            let terms = autoComplete(value);
+
+            for (i = 0; i < terms.length; i++) {
+                list += `<li>${terms[i]}</li><br>`;
+            }
+            res.innerHTML = `<ul>${list}</ul>`
         }
     </script>
 </body>
