@@ -6,16 +6,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Pokemon</title>
+    <title>Pokedex</title>
 </head>
 
 <body>
-    <div class="search">
-        <form id="form">
-            <label for="search">Buscar Pokémon</label>
-            <input type="search" id="searchPokemon" name="searchPokemon">
-            <button type="submit" id="buscar">Buscar</button>
-        </form>
+    <div class="container">
+        <div class="search">
+            <form id="form">
+                <input type="text" id="namesearch" name="namesearch" placeholder="Digite o nome de um Pokémon"
+                    autocomplete="off" onkeyup="showResults(this.value)" />
+                <div id="result-list"></div>
+            </form>
+        </div>
+
+        <div id ="sprite">
+            <img src="img/dragonite.gif">
+        </div>
     </div>
 </body>
 
@@ -24,15 +30,58 @@
     const name = document.getElementById("searchPokemon");
     const form = document.getElementById("form");
 
+    /* BUSCA */
     form.addEventListener("submit", function (e) {
         e.preventDefault();
+            const name = document.getElementById("namesearch").value;
+            pkName = name;
+            localStorage.setItem("pkName", pkName);
+            window.location.href = "index.html"
+        })
 
-        const pkName = name.value;
+    function listGetPokemon(value) {
+            const name = value;
+            pkName = name;
+            localStorage.setItem("pkName", pkName);
+            window.location.href = "index.html"
+        }
 
-        localStorage.setItem("pkName", pkName);
-        window.location.href = "index.html";
-    })
+    /* FETCH NOMES */
+    let evoNameArray = [];
 
+    fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1200`)
+            .then((response) => (response.json()))
+            .then((data) => {
+                let item = data.results;
+                item.forEach(data => {
+                    evoNameArray.push(data.name);
+                })
+            });
+
+        function autoComplete(input) {
+            if (input == "") {
+                return [];
+            }
+            var reg = RegExp(input);
+            return evoNameArray.filter(function (name) {
+                if (name.match(reg)) {
+                    return name;
+                }
+            });
+        }
+
+        function showResults(value) {
+            let res = document.getElementById("result-list");
+            let ul = document.getElementById("nameListFilter");
+            res.innerHTML = "";
+            let list = "";
+            let terms = autoComplete(value);
+
+            for (i = 0; i < terms.length; i++) {
+                list += `<li class="li-filter-item" onclick="listGetPokemon(this.innerHTML)">${terms[i]}</li>`;
+            }
+            res.innerHTML = `<ul id="pokemon-name-list-filter">${list}</ul>`
+        }
 </script>
 
 </html>

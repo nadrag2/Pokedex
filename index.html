@@ -6,8 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.1.js"
-        integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    
     <title>Pokedex</title>
 </head>
 
@@ -19,7 +18,7 @@
                 <input type="text" id="namesearch" name="namesearch" placeholder="Digite o nome de um Pokémon"
                     autocomplete="off" onkeyup="showResults(this.value)" />
                 <div id="result-list"></div>
-                <button type="submit" for="namesearch">Buscar</button>
+                <!--   <button type="submit" for="namesearch">Buscar</button> -->
             </form>
         </div>
 
@@ -41,8 +40,15 @@
 
                 <img src="" id="picOfficial" height="250" alt="Pokemon Image">
             </div>
-            <div class="evoClass">
-                <ul id="evolutions-list"></ul>
+
+            <div id="evo-container">
+                <div id="evo-label">
+                    <p>Familia de evolução</p><br>
+                </div>
+
+                <div class="evoClass">
+                    <ul id="evolutions-list"></ul>
+                </div>
             </div>
         </div>
     </div>
@@ -55,15 +61,24 @@
         /* DECLARAÇÃO DE VARIÁVEIS */
         let pkName = localStorage.getItem("pkName");
         const form = document.getElementById("form");
+        let liName = document.getElementById("pokemon-name-list-filter");
         let evoNameArray = [];
         let evoArray = [];
 
-        /* BOTÃO DE BUSCA */
+        /* BUSCA */
         form.addEventListener("submit", function () {
             const name = document.getElementById("namesearch").value;
             pkName = name;
             localStorage.setItem("pkName", pkName);
         })
+
+
+        function listGetPokemon(value) {
+            const name = value;
+            pkName = name;
+            localStorage.setItem("pkName", pkName);
+            window.location.reload();
+        }
 
         /* FUNÇÕES */
         function assignDataToElement(id, name, height, weight, element, imgsprite, imgoff) {
@@ -175,13 +190,19 @@
             let res = document.getElementById("result-list");
             let ul = document.getElementById("nameListFilter");
             res.innerHTML = "";
+        
             let list = "";
             let terms = autoComplete(value);
 
             for (i = 0; i < terms.length; i++) {
-                list += `<li>${terms[i]}</li><br>`;
+                list += `<li class="li-filter-item" onclick="listGetPokemon(this.innerHTML)">${terms[i]}</li>`;
             }
-            res.innerHTML = `<ul>${list}</ul>`
+            res.innerHTML = `<ul id="pokemon-name-list-filter">${list}</ul>`
+            let pkListFilter = document.getElementById("pokemon-name-list-filter");
+
+            if(pkListFilter.getElementsByTagName("li").length == 0){
+                pkListFilter.remove();
+            }
         }
     </script>
 </body>
