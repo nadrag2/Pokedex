@@ -19,7 +19,7 @@
             </form>
         </div>
 
-        <div id ="sprite">
+        <div id="sprite">
             <img src="img/dragonite.gif">
         </div>
     </div>
@@ -33,55 +33,65 @@
     /* BUSCA */
     form.addEventListener("submit", function (e) {
         e.preventDefault();
-            const name = document.getElementById("namesearch").value;
+        const name = document.getElementById("namesearch").value;
+
+        if (name == "") {
+            return
+        }
+        else if (isNaN(name)) {
+            let pkListFilter = document.getElementById("pokemon-name-list-filter");
+            pkName = pkListFilter.firstChild.innerHTML;
+        }
+        else {
             pkName = name;
-            localStorage.setItem("pkName", pkName);
-            window.location.href = "index.html"
-        })
+        }
+        localStorage.setItem("pkName", pkName);
+        window.location.href = "index.html"
+    })
 
     function listGetPokemon(value) {
-            const name = value;
-            pkName = name;
-            localStorage.setItem("pkName", pkName);
-            window.location.href = "index.html"
-        }
+        const name = value;
+        pkName = name;
+        localStorage.setItem("pkName", pkName);
+        window.location.href = "index.html"
+    }
 
     /* FETCH NOMES */
     let evoNameArray = [];
 
     fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1200`)
-            .then((response) => (response.json()))
-            .then((data) => {
-                let item = data.results;
-                item.forEach(data => {
-                    evoNameArray.push(data.name);
-                })
-            });
+        .then((response) => (response.json()))
+        .then((data) => {
+            let item = data.results;
+            item.forEach(data => {
+                evoNameArray.push(data.name);
+            })
+        });
 
-        function autoComplete(input) {
-            if (input == "") {
-                return [];
-            }
-            var reg = RegExp(input);
-            return evoNameArray.filter(function (name) {
-                if (name.match(reg)) {
-                    return name;
-                }
-            });
+    function autoComplete(input) {
+        if (input == "") {
+            return [];
         }
-
-        function showResults(value) {
-            let res = document.getElementById("result-list");
-            let ul = document.getElementById("nameListFilter");
-            res.innerHTML = "";
-            let list = "";
-            let terms = autoComplete(value);
-
-            for (i = 0; i < terms.length; i++) {
-                list += `<li class="li-filter-item" onclick="listGetPokemon(this.innerHTML)">${terms[i]}</li>`;
+        var reg = RegExp(`^${input}`);
+        return evoNameArray.filter(function (name) {
+            if (name.match(reg)) {
+                return name;
             }
-            res.innerHTML = `<ul id="pokemon-name-list-filter">${list}</ul>`
+        });
+    }
+
+    function showResults(value) {
+        let res = document.getElementById("result-list");
+        let ul = document.getElementById("nameListFilter");
+        res.innerHTML = "";
+        let list = "";
+        let terms = autoComplete(value);
+
+        for (i = 0; i < terms.length; i++) {
+            list += `<li class="li-filter-item" onclick="listGetPokemon(this.innerHTML)">${terms[i]}</li>`;
         }
+        res.innerHTML = `<ul id="pokemon-name-list-filter">${list}</ul>`
+    }
 </script>
 
 </html>

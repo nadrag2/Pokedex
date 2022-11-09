@@ -20,6 +20,7 @@ body {
 }
 
 @media only screen and (max-width: 900px) {
+    /* index.html */
     .container{
         width: 100%;
     }
@@ -153,4 +154,16 @@ font-weight: bold;
     color: red;
     font-weight: bold;
     border-radius: 5px;
+}
+
+#sprite {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin: 150px auto;
+}
+#sprite>img{
+    width: 50%;
+    border-radius: 20px;
 }
