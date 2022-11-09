@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    
+    <link rel="icon" href="img/pokebola.png" type="image/icon type">
     <title>Pokedex</title>
 </head>
 
@@ -18,32 +18,38 @@
                 <input type="text" id="namesearch" name="namesearch" placeholder="Digite o nome de um Pokémon"
                     autocomplete="off" onkeyup="showResults(this.value)" />
                 <div id="result-list"></div>
-                <!--   <button type="submit" for="namesearch">Buscar</button> -->
             </form>
         </div>
 
         <div class="info-container-geral">
             <div class="info-container">
                 <div class="info">
-                    <label for="name">NOME:</label>
-                    <label id="name"></label>
-                    <img src="" id="picSprite" height="100" alt="Pokemon Image"><br>
-                    <label for="id">ID:</label>
-                    <label id="id"></label><br>
-                    <label for="height">TAMANHO:</label>
-                    <label id="height"></label><br>
-                    <label for="weight">PESO:</label>
-                    <label id="weight"></label><br>
-                    <label for="element">ELEMENTO(S):</label>
-                    <label id="element"></label><br>
-                </div>
+                    <div id="img">
+                        <img src="" id="picSprite" height="150" alt="Pokemon Image"><br>
+                    </div>
+                    <div id="info-label">
+                        <label for="name">NOME:</label>
+                        <span id="name"></span><br>
 
-                <img src="" id="picOfficial" height="250" alt="Pokemon Image">
+                        <label for="id">ID:</label>
+                        <span id="id"></span><br>
+
+                        <label for="height">TAMANHO:</label>
+                        <span id="height"></span><br>
+
+                        <label for="weight">PESO:</label>
+                        <span id="weight"></span><br>
+
+                        <label for="element">ELEMENTO(S):</label>
+                        <span id="element"></span><br>
+                    </div>
+                </div>
+                <img src="" id="picOfficial" width="250px" alt="Pokemon Image">
             </div>
 
             <div id="evo-container">
                 <div id="evo-label">
-                    <p>Familia de evolução</p><br>
+                    <p>Família de evolução</p><br>
                 </div>
 
                 <div class="evoClass">
@@ -58,17 +64,23 @@
     <!-- JS SCRIPT -->
     <script>
 
-        /* DECLARAÇÃO DE VARIÁVEIS */
         let pkName = localStorage.getItem("pkName");
-        const form = document.getElementById("form");
-        let liName = document.getElementById("pokemon-name-list-filter");
-        let evoNameArray = [];
-        let evoArray = [];
 
         /* BUSCA */
+        const form = document.getElementById("form");
         form.addEventListener("submit", function () {
             const name = document.getElementById("namesearch").value;
-            pkName = name;
+
+            if (name == "") {
+                return
+            }
+            else if (isNaN(name)) {
+                let pkListFilter = document.getElementById("pokemon-name-list-filter");
+                pkName = pkListFilter.firstChild.innerHTML;
+            }
+            else {
+                pkName = name;
+            }
             localStorage.setItem("pkName", pkName);
         })
 
@@ -80,15 +92,36 @@
             window.location.reload();
         }
 
-        /* FUNÇÕES */
-        function assignDataToElement(id, name, height, weight, element, imgsprite, imgoff) {
+        function assignDataToElement(data) {
+            const id = data.id;
+            const name = data.name;
+            const height = data.height;
+            const weight = data.weight;
+            const element = data.types;
+            const animated = data.sprites.versions["generation-v"]["black-white"].animated.front_default;
+            const pixart = data.sprites.front_default;
+            const official = data.sprites.other["official-artwork"].front_default;
             document.getElementById("id").innerHTML = `${id}`;
             document.getElementById("name").innerHTML = `${name.slice(0, 1).toLocaleUpperCase()}${name.slice(1)}`;
             document.getElementById("height").innerHTML = `${addADot(height)} m`;
             document.getElementById("weight").innerHTML = `${addADot(weight)} kg`;
             document.getElementById("element").innerHTML = `${pokemonElement(element)}`;
-            document.getElementById("picSprite").src = imgsprite.front_default;
-            document.getElementById("picOfficial").src = imgoff.other["official-artwork"].front_default;
+            document.getElementById("picOfficial").src = official;
+            document.getElementById("picOfficial").alt = `Uma imagem de ${name}`;
+            if (animated) {
+                document.getElementById("picSprite").src = animated;
+                document.getElementById("picSprite").alt = `Um sprite animado de ${name}`;
+                document.getElementById("picSprite").style.height = "90px"
+            }
+            else if (!animated && !pixart) {
+                document.getElementById("picSprite").alt = "Sprite não encontrada"
+            }
+            else {
+                document.getElementById("picSprite").src = pixart;
+                document.getElementById("picSprite").alt = `Um sprite de ${name}`;
+                document.getElementById("picSprite").style.margin = "-25px 0 0 -25px"
+            }
+
 
         }
 
@@ -103,14 +136,18 @@
 
         function pokemonElement(element) {
             let elementArray = [];
+            const elementoEn = ["bug", "dark", "dragon", "electric", "fairy", "fighting", "fire", "flying", "ghost", "grass", "ground", "ice", "normal", "poison", "psychic", "rock", "steel", "water"]
+            const elementoPt = ["inseto", "sombrio", "dragão", "elétrico", "fada", "lutador", "fogo", "voador", "fantasma", "planta", "terrestre", "gelo", "normal", "venenoso", "psíquico", "pedra", "aço", "água"]
             element.forEach((data) => {
-                elementArray.push(data.type.name);
+                const index = elementoEn.indexOf(data.type.name);
+                elementArray.push(elementoPt[index]);
             });
             return elementArray.join(", ").toLocaleUpperCase();
-
         }
 
         /* ADICIONA TODA A CADEIA DE EVOLUÇÃO DE UM POKÉMON A UM ARRAY */
+        let evoArray = [];
+
         function getEvoArray(evo, evo1) {
             evoArray.push(evo1.species.name);
             evo.forEach((data) => {
@@ -155,7 +192,7 @@
                 else throw new Error(alert(`Pokémon não encontrado. ERRO ${response.status}`))
             })
             .then((data) => (
-                assignDataToElement(data.id, data.name, data.height, data.weight, data.types, data.sprites, data.sprites), console.log(data)
+                assignDataToElement(data), console.log(data)
             ))
             .catch((err) => (console.log(err)))
 
@@ -164,7 +201,9 @@
             .then((response) => (response.json()))
             .then((data) => (pokemonChain(data)))
 
-        /* FETCH NOMES */
+        /* NOMES */
+        let evoNameArray = [];
+
         fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1200`)
             .then((response) => (response.json()))
             .then((data) => {
@@ -174,11 +213,12 @@
                 })
             });
 
+        /* Filtrar e sugerir Pokémons na busca */
         function autoComplete(input) {
             if (input == "") {
                 return [];
             }
-            var reg = RegExp(input);
+            var reg = RegExp(`^${input}`);
             return evoNameArray.filter(function (name) {
                 if (name.match(reg)) {
                     return name;
@@ -186,11 +226,16 @@
             });
         }
 
+        function teste(input) {
+            const reg = RegExp(input);
+            console.log(reg);
+        }
+
         function showResults(value) {
             let res = document.getElementById("result-list");
             let ul = document.getElementById("nameListFilter");
             res.innerHTML = "";
-        
+
             let list = "";
             let terms = autoComplete(value);
 
@@ -200,7 +245,7 @@
             res.innerHTML = `<ul id="pokemon-name-list-filter">${list}</ul>`
             let pkListFilter = document.getElementById("pokemon-name-list-filter");
 
-            if(pkListFilter.getElementsByTagName("li").length == 0){
+            if (pkListFilter.getElementsByTagName("li").length == 0) {
                 pkListFilter.remove();
             }
         }

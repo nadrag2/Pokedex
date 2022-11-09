@@ -7,32 +7,25 @@
 }
 
 body {
-    color: white;
-    background-color: #191919;
+    background-color: #9cadce;
 }
 
-#sprite {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    margin: 150px auto;
-}
-#sprite>img{
-    width: 30%;
-    border-radius: 20px;
-}
 
 /* GERAL */
 .container {
-    /*  background-color: rgb(204, 131, 131); */
     height: 100vh;
-    width: 100%;
+    width: 1000px;
     display: block;
+    margin: auto;
 }
 
+@media only screen and (max-width: 900px) {
+    .container{
+        width: 100%;
+    }
+  }
+
 .search {
-    /*   background-color: green; */
     width: 100%;
     height: 100px;
     display: flex;
@@ -92,13 +85,16 @@ body {
     margin: auto;
     margin-top: 20vh;
     padding: 20px;
-    background-color: #111;
+    background-color: #d4afb9;
     border-radius: 25px;
-    color: white;
+    color: black;
+}
+
+span{
+font-weight: bold;
 }
 
 .info-container {
-    /*     background-color: yellow; */
     height: auto;
     margin: auto;
     display: flex;
@@ -106,9 +102,19 @@ body {
     justify-content: center;
 }
 
+#info-label{
+    padding: 30px;
+}
+
+#img{
+    display: block;
+    margin: auto;
+    width: 100px;
+    height: 100px;
+}
+
 .evoClass,
 #evo-label {
-    /*     background-color: red; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,18 +123,19 @@ body {
 }
 
 #evo-label>p {
-    color: red;
-    background-color: rgb(255, 255, 255);
-    border-radius: 5px;
+    color: black;
+    border-bottom: 2px dashed;
+    border-color: black;
     padding: 5px 30px;
     font-weight: bold;
+    width: 50%;
+    text-align: center;
 }
 
 #evo-container {
-    /*  background-color: black; */
     border-radius: 20px;
     border: 2px;
-    border-style: solid;
+    background-color: #d1cfe2;
 }
 
 #evolutions-list>li {
