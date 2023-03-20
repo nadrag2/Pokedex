@@ -191,21 +191,21 @@
                 if (response.ok) return response.json()
                 else throw new Error(alert(`Pokémon não encontrado. ERRO ${response.status}`))
             })
-            .then((data) => (
+            .then((data) => {
                 assignDataToElement(data), console.log(data)
-            ))
-            .catch((err) => (console.log(err)))
+            })
+            .catch((err) => {console.log(err)})
 
         /* EVOLUÇÃO */
         fetch(`https://pokeapi.co/api/v2/pokemon-species/${pkName.toLowerCase()}/`)
-            .then((response) => (response.json()))
-            .then((data) => (pokemonChain(data)))
+            .then((response) => {response.json()})
+            .then((data) => {pokemonChain(data)})
 
         /* NOMES */
         let evoNameArray = [];
 
         fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1200`)
-            .then((response) => (response.json()))
+            .then((response) => {response.json()})
             .then((data) => {
                 let item = data.results;
                 item.forEach(data => {
